@@ -15,7 +15,19 @@ export default function DrawerNavigator() {
     <Drawer.Navigator
       drawerContent={(props) => (
         <CustomDrawerContent {...props} />
-      )}>
+      )}
+      screenOptions={{
+        headerStyle: { backgroundColor: '#FFFFFF' },
+        headerTintColor: '#17233C',
+        headerTitleStyle: { fontWeight: '700' },
+        headerShadowVisible: false,
+        sceneStyle: { backgroundColor: '#F4F7FB' },
+        drawerActiveTintColor: '#315FEA',
+        drawerActiveBackgroundColor: '#E9EEFF',
+        drawerInactiveTintColor: '#68758D',
+        drawerStyle: { backgroundColor: '#FFFFFF', width: 292 },
+        drawerLabelStyle: { fontWeight: '600' },
+      }}>
 
       <Drawer.Screen
         name="Dashboard"

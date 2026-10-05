@@ -67,6 +67,8 @@ It provides three asynchronous functions:
 
 Each function uses `async/await` and a simulated delay. The service also has a simulated failure rate so the application can demonstrate error handling and retry behavior.
 
+The mock failure rate is 8% so retry states can be tested without making normal use feel unreliable. Mock device updates are kept in service memory for the current app session. The UI depends on the service functions rather than the mock data, so the service is the boundary to replace when the backend is available.
+
 The current service values are intentionally simulated. They are not connected to physical IoT hardware or a real API.
 
 ## 4. IoT Context Changes
@@ -119,7 +121,7 @@ The Devices screen now:
 - Shows `Loading devices...` during the initial request.
 - Shows `Syncing device...` while a device command is processing.
 - Disables the switch when the gateway is disconnected.
-- Disables only the device currently being updated.
+- Disables device controls while a command is in progress.
 - Shows device errors and a `Retry` button.
 - Shows `IoT Gateway is disconnected.` when appropriate.
 
@@ -142,7 +144,7 @@ The screen does not generate sensor values itself. It requests them through the 
 
 File: `src/navigation/screens/DashboardScreen.tsx`
 
-The Dashboard now uses the shared sensor and device state.
+The Dashboard now uses the shared sensor and device state. It includes a responsive, scrollable overview with live sensor cards, refresh controls, gateway status, and quick device controls. Sensor and device failures have independent retry actions.
 
 The sensor area contains:
 
@@ -154,7 +156,11 @@ Temperature and Humidity share the top row. Light Level is displayed in a separa
 
 Dashboard device switches use the same context update behavior as the Devices screen, including optimistic updates and protection against repeated taps during a request.
 
-## 8. Why the Service and Context Are Separate
+## 8. Settings and Navigation
+
+The Settings screen reports the current gateway, device, and sensor state from the IoT context. Its connection check reloads devices through the service rather than displaying a hard-coded connection result. The drawer also reflects the live gateway state, and all screens use the shared visual palette.
+
+## 9. Why the Service and Context Are Separate
 
 The screens should focus on displaying information and handling user interaction. They should not know how data is retrieved or how network failures happen.
 
@@ -167,7 +173,11 @@ The responsibilities are separated like this:
 
 This structure makes it possible to replace the simulated service with a real API later without rewriting every screen.
 
-## 9. Expo Setup Note
+## 10. Backend Handoff
+
+The screens call the context, and the context calls `src/services/IoTService.ts`. Replace the mock implementations of `getDevices()`, `getSensorData()`, and `updateDeviceStatus()` with backend requests while keeping their typed return values and surfacing request failures. No screen needs to generate mock data or know the API transport.
+
+## 11. Expo Setup Note
 
 The project uses Expo SDK 57. The local Expo executable was initially missing from `node_modules/.bin` because the dependency installation was incomplete. Running the project dependency install repaired the local command link.
 
@@ -189,7 +199,7 @@ The development server was verified at:
 http://localhost:8081
 ```
 
-## 10. Validation
+## 12. Validation
 
 Editor diagnostics showed no TypeScript errors in the files changed for the IoT features. The project TypeScript compiler also completed successfully after the dependencies were repaired.
 
